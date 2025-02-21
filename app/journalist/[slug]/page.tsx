@@ -59,13 +59,14 @@ const sampleJournalist = {
   ]
 };
 
-export default function JournalistPage({ params }: { params: { slug: string } }) {
+export default async function JournalistPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   // Simulate fetching journalist data based on params.slug
   const journalist = {
     ...sampleJournalist,
     slug: params.slug  // Store the slug for future use
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopBar />

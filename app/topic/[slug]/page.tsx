@@ -45,7 +45,8 @@ const sampleArticles: Article[] = [
   }
 ];
 
-export default function TopicPage({ params }: { params: { slug: string } }) {
+export default async function TopicPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const topic = params.slug.charAt(0).toUpperCase() + params.slug.slice(1);
   const filteredArticles = sampleArticles.filter(article => 
     article.tags.map(t => t.toLowerCase()).includes(params.slug.toLowerCase())

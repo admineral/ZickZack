@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { use } from 'react';
 import { ArticleView } from '../../components/ArticleView';
 import { TopBar } from '../../components/TopBar';
 
@@ -80,29 +79,27 @@ const sampleArticle = {
   ]
 };
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}): Promise<Metadata> {
-  const { id } = await params;
+type Props = {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+  // you would typically fetch data here
   return {
-    title: `Article ${id} - ZickZack`,
-    description: sampleArticle.summary,
+    title: `Article ${params.id} - ZickZack`,
   }
 }
 
-export default function ArticlePage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  const { id } = use(params);
+export default async function ArticlePage(props: Props) {
+  const params = await props.params;
+  // Simulate fetching article data based on params.id
   const article = {
     ...sampleArticle,
-    id
+    id: params.id  // Use the actual ID from params
   };
-  
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <TopBar />

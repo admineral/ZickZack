@@ -6,6 +6,15 @@ interface OrbData {
   title: string;
   description: string;
   link: string;
+  type?: 'investigation' | 'opinion' | 'report';
+  author?: string;
+  timestamp?: string;
+  tags?: string[];
+  engagement?: {
+    views?: number;
+    credibility?: number;
+    comments?: number;
+  };
 }
 
 interface OrbitProps {
@@ -16,47 +25,46 @@ interface OrbitProps {
 }
 
 const Orbit = memo(({ size, index, totalOrbits, orbs }: OrbitProps) => {
-  const calculateOrbitPath = (angle: number, offset: number = 0) => ({
-    x: Math.cos(angle + offset) * size,
-    y: Math.sin(angle + offset) * size
-  });
+  const calculateOrbitPath = (angle: number, offset: number = 0) => {
+    const radius = size; // Keep radius constant
+    const actualAngle = angle + offset;
+    return {
+      x: Math.round(Math.cos(actualAngle) * radius * 100) / 100,
+      y: Math.round(Math.sin(actualAngle) * radius * 100) / 100
+    };
+  };
 
   const offset = (index * 2 * Math.PI) / totalOrbits;
-  const segmentSize = 2 * Math.PI / orbs.length; // Size of each segment
-  const minDistance = 0.1; // Minimum distance from the edges of the segment
+  const segmentSize = 2 * Math.PI / orbs.length;
+  const minDistance = 0.15;
 
   return (
     <>
-      <div
-        className="absolute border rounded-full"
-        style={{
-          width: size * 2,
-          height: size * 2,
-          top: '50%',
-          left: '50%',
-          transform: `translate(-50%, -50%)`,
-          zIndex: 0,
-          borderColor: 'var(--ink-gray)',
-          borderWidth: '1px'
-        }}
-      />
       {orbs.map((orb, orbIndex) => {
-        const segmentStart = orbIndex * segmentSize; // Start of the segment
-        const orbOffset = segmentStart + minDistance + Math.random() * (segmentSize - 2 * minDistance); // Random position within the segment
-
+        const segmentStart = orbIndex * segmentSize;
+        const orbOffset = segmentStart + minDistance + (Math.random() * (segmentSize - 2 * minDistance));
+        
+        // Generate precise animation keyframes
+        const steps = 36; // One keyframe every 10 degrees
         const animation = {
-          x: Array.from({ length: 360 / 10 + 1 }, (_, i) => calculateOrbitPath((i * 10) * Math.PI / 180, offset + orbOffset).x),
-          y: Array.from({ length: 360 / 10 + 1 }, (_, i) => calculateOrbitPath((i * 10) * Math.PI / 180, offset + orbOffset).y),
+          x: Array.from({ length: steps + 1 }, (_, i) => {
+            const angle = (i * (2 * Math.PI)) / steps;
+            return calculateOrbitPath(angle, offset + orbOffset).x;
+          }),
+          y: Array.from({ length: steps + 1 }, (_, i) => {
+            const angle = (i * (2 * Math.PI)) / steps;
+            return calculateOrbitPath(angle, offset + orbOffset).y;
+          }),
           transition: {
-            repeat: Infinity, 
-            repeatType: "loop", 
-            duration: size * 0.4, 
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: size * 0.5,
             ease: "linear",
-            delay: index * 0.5
+            delay: index * 0.8,
+            times: Array.from({ length: steps + 1 }, (_, i) => i / steps)
           }
         };
 
-        // Assign decreasing z-index for outer orbits to prevent overlap
         const orbZIndex = Math.max(1, 10 - index);
 
         return <Orb key={orbIndex} animation={animation} orb={orb} zIndex={orbZIndex} />;
@@ -64,5 +72,6 @@ const Orbit = memo(({ size, index, totalOrbits, orbs }: OrbitProps) => {
     </>
   );
 });
+
 Orbit.displayName = 'Orbit';
 export default Orbit;

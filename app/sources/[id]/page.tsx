@@ -48,13 +48,14 @@ const sampleSource: SourceVerification = {
   ]
 };
 
-export default function SourceVerificationPage({ params }: { params: { id: string } }) {
+export default async function SourceVerificationPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   // Simulate fetching source data based on params.id
   const source = {
     ...sampleSource,
     id: params.id  // Store the ID for future use
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopBar />

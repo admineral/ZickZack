@@ -2,6 +2,15 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import OrbitAnimation to ensure client-side rendering
+const OrbitAnimation = dynamic(() => import('../test/OrbitComponent'), {
+  ssr: false,
+  loading: () => <div className="h-[600px] flex items-center justify-center">
+    <div className="text-ink-gray dark:text-paper-gray">Loading visualization...</div>
+  </div>
+});
 
 interface Article {
   id: string;
@@ -25,6 +34,7 @@ export function MainFeed() {
   const [opinions, setOpinions] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllSecondary, setShowAllSecondary] = useState(false);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -43,6 +53,11 @@ export function MainFeed() {
 
     fetchContent();
   }, []);
+
+  // Get secondary articles based on show all state
+  const secondaryArticles = showAllSecondary 
+    ? articles.slice(2) 
+    : articles.slice(2, 5);
 
   if (isLoading) {
     return (
@@ -177,7 +192,7 @@ export function MainFeed() {
 
         {/* Secondary Articles */}
         <div className="col-span-12 md:col-span-4 space-y-8">
-          {articles.slice(2).map((article) => (
+          {secondaryArticles.map((article) => (
             <article
               key={article.id}
               className="article-card p-6"
@@ -237,6 +252,29 @@ export function MainFeed() {
               </div>
             </article>
           ))}
+          
+          {articles.length > 5 && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setShowAllSecondary(!showAllSecondary)}
+                className="px-4 py-2 border-2 border-ink-blue dark:border-paper-white font-source-serif text-sm uppercase tracking-wider hover:bg-ink-blue hover:text-paper-white dark:hover:bg-paper-white dark:hover:text-ink-blue transition-colors"
+              >
+                {showAllSecondary ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Interactive Visualization Section */}
+      <div className="newspaper-grid">
+        <div className="col-span-12">
+          <div className="flex justify-between items-center border-b-3 border-ink-blue dark:border-paper-white pb-4 mb-8">
+            <h2 className="font-playfair text-3xl font-bold">Themen im Fokus</h2>
+          </div>
+        </div>
+        <div className="col-span-12 flex justify-center items-center py-8">
+          <OrbitAnimation />
         </div>
       </div>
 

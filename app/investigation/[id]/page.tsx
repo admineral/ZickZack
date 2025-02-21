@@ -97,13 +97,18 @@ const sampleInvestigation: Investigation = {
   relatedInvestigations: ['justice-scandal']
 };
 
-export default function InvestigationPage({ params }: { params: { id: string } }) {
+export default async function InvestigationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params;
   // Simulate fetching investigation data based on params.id
   const investigation = {
     ...sampleInvestigation,
-    id: params.id  // Use the actual ID from params
+    id  // Use the actual ID from params
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <TopBar />

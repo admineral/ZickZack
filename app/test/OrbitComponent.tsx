@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Orbit from './components/Orbit';
@@ -9,7 +9,9 @@ import { fetchAndCacheArticles } from '../data/articlesData';
 
 export default function OrbitAnimation() {
   const [orbsData, setOrbsData] = useState([[], [], []]);
-  const [isAutomatic, setIsAutomatic] = useState(true);
+  const [isManuallyHovering, setIsManuallyHovering] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -20,47 +22,80 @@ export default function OrbitAnimation() {
     fetchData();
   }, []);
 
+  // Setup manual hover detection
   useEffect(() => {
-    // Setup the automatic display if it's enabled
-    if (isAutomatic) {
+    const handleMouseEnter = () => setIsManuallyHovering(true);
+    const handleMouseLeave = () => setIsManuallyHovering(false);
+
+    const orbs = document.querySelectorAll('.orb');
+    orbs.forEach(orb => {
+      orb.addEventListener('mouseenter', handleMouseEnter);
+      orb.addEventListener('mouseleave', handleMouseLeave);
+    });
+
+    return () => {
+      orbs.forEach(orb => {
+        orb.removeEventListener('mouseenter', handleMouseEnter);
+        orb.removeEventListener('mouseleave', handleMouseLeave);
+      });
+    };
+  }, [orbsData]); // Re-add listeners when orbsData changes
+
+  useEffect(() => {
+    if (!isManuallyHovering) {
       const showRandomHoverCard = () => {
-        // Logic to show a random hover card
+        // First, reset all orbs and cards
         const orbs = document.querySelectorAll('.orb');
         orbs.forEach(orb => {
+          (orb as HTMLElement).style.zIndex = '1';
           const hoverCard = orb.querySelector('.hover-card');
           if (hoverCard) {
             hoverCard.classList.remove('show');
+            (hoverCard as HTMLElement).style.zIndex = '';
           }
         });
 
         if (orbs.length > 0) {
           const randomIndex = Math.floor(Math.random() * orbs.length);
           const selectedOrb = orbs[randomIndex];
+          
+          // Set high z-index for the selected orb
+          (selectedOrb as HTMLElement).style.zIndex = '99999';
+          
           const hoverCard = selectedOrb.querySelector('.hover-card');
           if (hoverCard) {
             hoverCard.classList.add('show');
+            // Ensure hover card is above everything
+            (hoverCard as HTMLElement).style.zIndex = '999999';
           }
         }
       };
 
-      showRandomHoverCard();
-      const intervalId = setInterval(showRandomHoverCard, 10000);
+      // Initial delay before starting
+      timeoutRef.current = setTimeout(showRandomHoverCard, 2000);
+      
+      // Regular interval for subsequent shows
+      intervalRef.current = setInterval(showRandomHoverCard, 5000);
 
-      return () => clearInterval(intervalId);
+      return () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        
+        // Only reset cards if we're not manually hovering
+        if (!isManuallyHovering) {
+          const orbs = document.querySelectorAll('.orb');
+          orbs.forEach(orb => {
+            (orb as HTMLElement).style.zIndex = '1';
+            const hoverCard = orb.querySelector('.hover-card');
+            if (hoverCard) {
+              hoverCard.classList.remove('show');
+              (hoverCard as HTMLElement).style.zIndex = '';
+            }
+          });
+        }
+      };
     }
-  }, [isAutomatic]);
-
-  const toggleAutomaticMode = () => {
-    setIsAutomatic(!isAutomatic); // Toggle the automatic mode
-  
-    // If turning off the automatic mode, also hide any visible hover cards
-    if (isAutomatic) {
-      const visibleHoverCards = document.querySelectorAll('.hover-card.show');
-      visibleHoverCards.forEach(card => {
-        card.classList.remove('show');
-      });
-    }
-  };
+  }, [isManuallyHovering]);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 2 }} style={{ position: 'relative', zIndex: 30 }}>
@@ -84,12 +119,6 @@ export default function OrbitAnimation() {
           />
         ))}
       </div>
-      <button 
-        onClick={toggleAutomaticMode} 
-        className="fixed bottom-5 right-5 z-50 px-4 py-2 bg-editorial-red text-paper-white rounded-none hover:bg-editorial-red/90 transition-colors font-source-serif text-sm uppercase tracking-wider"
-      >
-        {isAutomatic ? 'Automatisch: An' : 'Automatisch: Aus'}
-      </button>
     </motion.div>
   );
 }
