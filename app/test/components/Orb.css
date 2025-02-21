@@ -1,0 +1,45 @@
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--paper-gray);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .orb:hover {
+    border-width: 3px !important;
+    box-shadow: 0 0 15px currentColor !important;
+    background-color: var(--paper-white);
+    transform: scale(1.1);
+    z-index: 100 !important;
+  }
+  
+  .hover-card {
+    display: none;
+    pointer-events: none;
+    position: absolute;
+    z-index: 9999;
+  }
+  
+  .hover-card.show,
+  .orb:hover .hover-card {
+    display: block;
+    pointer-events: all;
+    z-index: 9999;
+  }
+  
+  /* Add animation for the hover card */
+  .orb:hover .hover-card {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

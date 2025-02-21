@@ -1,21 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink-blue: #1A2333;
+  --paper-white: #FDFBF7;
+  --editorial-red: #D64045;
+  --ink-gray: #4A5568;
+  --paper-gray: #E2E8F0;
+  --highlight-yellow: #FFD700;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-paper-white dark:bg-ink-blue text-ink-blue dark:text-paper-white;
+    font-family: 'Source Serif Pro', serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+
+  article p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  article h1 {
+    @apply text-4xl font-bold mb-6;
+  }
+
+  article h2 {
+    @apply text-3xl font-bold mb-4;
+  }
+
+  article h3 {
+    @apply text-2xl font-bold mb-3;
+  }
+
+  article blockquote {
+    @apply border-l-4 border-editorial-red pl-6 my-8 italic;
+  }
+
+  article ul {
+    @apply list-disc list-inside mb-4;
+  }
+
+  article ol {
+    @apply list-decimal list-inside mb-4;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .newspaper-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2rem;
+  }
+
+  .article-card {
+    @apply bg-white dark:bg-ink-blue border border-paper-gray dark:border-ink-gray rounded-none;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  .headline {
+    @apply font-playfair text-3xl md:text-4xl lg:text-5xl font-bold leading-tight;
+    letter-spacing: -0.02em;
+  }
+
+  .subheadline {
+    @apply font-source-serif text-xl md:text-2xl font-normal text-ink-gray dark:text-paper-gray leading-relaxed;
+  }
+
+  .byline {
+    @apply font-source-serif text-sm uppercase tracking-wider text-ink-gray dark:text-paper-gray;
+  }
+
+  .drop-cap::first-letter {
+    @apply float-left text-7xl font-playfair font-bold mr-3 mt-1;
+    line-height: 0.68;
+  }
+
+  .pull-quote {
+    @apply font-playfair text-2xl italic border-l-4 border-editorial-red pl-6 my-8;
+  }
+
+  .section-divider {
+    @apply border-t border-paper-gray dark:border-ink-gray my-8;
+  }
+
+  .newspaper-column {
+    column-count: 1;
+    @screen md {
+      column-count: 2;
+      column-gap: 2rem;
+    }
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-paper-gray dark:bg-ink-gray;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-gray dark:bg-paper-gray;
+  border-radius: 4px;
+}
+
+/* Paper Texture */
+.paper-texture {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
